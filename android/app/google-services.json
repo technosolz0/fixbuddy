@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "212009380231",
+    "project_id": "fixbuddy-5a8ea",
+    "storage_bucket": "fixbuddy-5a8ea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:212009380231:android:8974c926c78549dc938b22",
+        "android_client_info": {
+          "package_name": "com.example.fixbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClhNlenZ7njhSBnRXlfV_H0807TnVg8lM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
