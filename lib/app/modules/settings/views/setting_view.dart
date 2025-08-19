@@ -33,7 +33,7 @@ class SettingView extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                controller.logOut();
+                controller.logout();
                 Get.back();
               },
               child: const Text('Yes'),
@@ -78,14 +78,14 @@ class SettingView extends StatelessWidget {
           children: [
             // Fixed header
             SizedBox(
-              height: size.height * 0.25,
+              height: size.height * 0.1,
               child: Stack(
                 children: [
                   // Wave header
                   ClipPath(
                     clipper: WaveClipper(),
                     child: Container(
-                      height: size.height * 0.2,
+                      height: size.height * 0.15,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [

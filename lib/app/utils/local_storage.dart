@@ -90,15 +90,17 @@ class LocalStorage {
   }
 
   /// To save userID to cache. Pass `String`
-  Future setUserID(String val) async {
-    await pref.write(key: userIDKey, value: val);
+  /// To save userID to cache. Pass `int`
+  Future setUserID(int val) async {
+    await pref.write(key: userIDKey, value: val.toString());
   }
 
-  /// To fetch userID from cache. Returns `String?`
-  Future<String?> getUserID() async {
-    return await pref.read(key: userIDKey);
+  /// To fetch userID from cache. Returns `int?`
+  Future<int?> getUserID() async {
+    String? userIdString = await pref.read(key: userIDKey);
+    if (userIdString == null) return null;
+    return int.tryParse(userIdString);
   }
-
   /// To save last login date to cache. Pass `DateTime`
   Future setLastLoginDate(DateTime val) async {
     await pref.write(key: lastLoginDateKey, value: val.toString());

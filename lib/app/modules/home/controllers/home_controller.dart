@@ -209,6 +209,7 @@ import 'dart:convert';
 
 import 'package:fixbuddy/app/constants/app_color.dart'; // Assuming this exists for warningColor
 import 'package:fixbuddy/app/modules/allservices/controllers/all_service_controller.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -256,6 +257,8 @@ class HomeController extends GetxController {
     if (userJson != null) {
       final user = UserCachedModel.fromJSON(jsonDecode(userJson));
       username.value = user.fullName!;
+      final token = await _localStorage.getToken();
+      ServexUtils.logPrint('Token: $token');
     }
   }
 

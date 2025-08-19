@@ -1,9 +1,11 @@
 import 'package:fixbuddy/app/routes/app_routes.dart';
+import 'package:fixbuddy/app/utils/local_storage.dart';
 import 'package:get/get.dart';
 
 class SettingController extends GetxController {
   var appVersion = '1.0.0'.obs;
 
+  final LocalStorage _localStorage = LocalStorage();
   @override
   void onInit() {
     super.onInit();
@@ -41,8 +43,14 @@ class SettingController extends GetxController {
     // Get.toNamed(Routes.referFriend);
   }
 
-  void logOut() {
-    print('Logging out');
-    Get.offAllNamed(Routes.login); // Clear stack and navigate to login
+  Future<void> logout() async {
+    await _localStorage.clearLocalStorage();
+
+    Get.offAllNamed(Routes.login);
+    Get.snackbar(
+      'Logged out',
+      'You have been logged out successfully.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:fixbuddy/app/modules/allservices/controllers/all_service_controller.dart';
+import 'package:fixbuddy/app/modules/allservices/models/service_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
@@ -74,17 +75,19 @@ class AllServicesView extends StatelessWidget {
                     final vendor = vendors[index];
 
                     final vendorName = vendor.vendorDetails?.name ?? "No Name";
+                    final vendorId = vendor.vendorDetails?.id ?? 0;
                     final vendorPrice = vendor.serviceCharge != null
                         ? "₹${vendor.serviceCharge}"
-                        : "Price N/A";
+                        : "0";
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _buildAllServicesCard(
+                        vendorId: vendorId,
                         title: vendorName,
-                        status: "Available",
                         date: "—", // TODO: replace with API date if available
                         price: vendorPrice,
+                        controller: controller,
                       ),
                     );
                   },
@@ -98,27 +101,13 @@ class AllServicesView extends StatelessWidget {
   }
 
   Widget _buildAllServicesCard({
+    required int vendorId,
     required String title,
-    required String status,
     required String date,
     required String price,
+    double rating = 0.0, // added rating param
+    required AllServicesController controller,
   }) {
-    Color statusColor;
-
-    switch (status) {
-      case 'Completed':
-        statusColor = Colors.green;
-        break;
-      case 'Scheduled':
-        statusColor = Colors.orange;
-        break;
-      case 'Cancelled':
-        statusColor = Colors.red;
-        break;
-      default:
-        statusColor = Colors.blue;
-    }
-
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -133,28 +122,52 @@ class AllServicesView extends StatelessWidget {
         ],
       ),
       child: CustomListTile(
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.star, color: Colors.amber, size: 20),
+            const SizedBox(width: 4),
+            Text(
+              rating.toStringAsFixed(1),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
         title: Text(
           title,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        subtitle: Text(
-          '$date  •  $price',
-          style: const TextStyle(color: Colors.black54),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
+        subtitle: Text('$price', style: const TextStyle(color: Colors.black54)),
+        trailing: ElevatedButton(
+          onPressed: () {
+            controller.startPayment(
+              vendorId: vendorId,
+              categoryId: controller.categoryId!,
+              subCategoryId: controller.subCategoryId!,
+              amount: price.isNotEmpty
+                  ? double.tryParse(price.replaceAll('₹', '')) ?? 0.0
+                  : 0.0,
+            );
+            print('ijih');
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.secondaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
-          child: Text(
-            status,
-            style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
+          child: const Text(
+            "Book Now",
+            style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
           ),
         ),
-        onTap: () {
-          // TODO: Navigate to vendor details page
-        },
+        // onTap: () {
+        //   print("sdefedf");
+        // },
       ),
     );
   }

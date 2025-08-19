@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:dio/dio.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart' as getx;
@@ -55,14 +57,14 @@ class AuthServices {
       if (response.statusCode == 200) {
         int result = int.parse(response.data['result'].toString());
         if (result == 1) {
-          String userID = response.data['userId'].toString();
+          // String userID = response.data['userId'].toString();
           bool isUserOnboarded = response.data['isOnboarded'] ?? false;
           bool isAllGoalsSetup = response.data['isAllGoalsSetup'] ?? false;
           response.data['email'] = email;
           UserCachedModel userDetails = UserCachedModel.fromJSON(response.data);
 
           await LocalStorage().setToken(response.data['jwtToken'].toString());
-          await LocalStorage().setUserID(userID);
+          // await LocalStorage().setUserID(userID);
           await LocalStorage().setIsOnboarded(isUserOnboarded);
           await LocalStorage().setAllGoalsProvided(isAllGoalsSetup);
           await LocalStorage().setUserDetails(userDetails);
@@ -70,7 +72,7 @@ class AuthServices {
           await LocalStorage().setLastFCMUpdatedAtDate(DateTime.now());
           await LocalStorage().setLastSentFCM(fcmToken);
 
-          return (userID, isUserOnboarded, false, null);
+          // return (userID, isUserOnboarded, false, null);
         } else if (result == 4) {
           return ('', false, true, response.data['message'].toString());
         } else {
@@ -89,7 +91,7 @@ class AuthServices {
   /// To update fcm token
   Future<void> updateFCMToken() async {
     try {
-      String userID = await LocalStorage().getUserID() ?? '';
+      int? userID = await LocalStorage().getUserID() ?? 0;
       String newFCMToken = await FirebaseNotifications.getFirebaseToken() ?? '';
       String deviceId = await _getDeviceId();
 
@@ -127,7 +129,7 @@ class AuthServices {
   /// Returns `bool` to indicate success call
   Future<bool> logout() async {
     try {
-      String userID = await LocalStorage().getUserID() ?? '';
+      int userID = await LocalStorage().getUserID() ?? 0;
       String deviceId = await _getDeviceId();
 
       Map<String, dynamic> data = {'userId': userID, 'deviceId': deviceId};

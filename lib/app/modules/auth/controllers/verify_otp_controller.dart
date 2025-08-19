@@ -98,6 +98,7 @@ class VerifyOtpController extends GetxController {
 
         final data = response.data;
         final token = data['access_token'];
+        // final id = data['user']['id'];
         final msg = data['message'] ?? 'Login successfully!';
         if (token != null) {
           await _localStorage.setToken(token);
@@ -179,6 +180,7 @@ class VerifyOtpController extends GetxController {
 
   Future<void> _saveUserSession(Map<String, dynamic> responseData) async {
     await _localStorage.setToken(responseData['access_token']);
+    await _localStorage.setUserID(responseData['user']['id']);
 
     final user = responseData['user'];
     await _localStorage.setUserDetails(
