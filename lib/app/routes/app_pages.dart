@@ -1,8 +1,11 @@
 import 'package:fixbuddy/app/constants/category_search_screen.dart';
+import 'package:fixbuddy/app/modules/address/binding/address_binding.dart';
+import 'package:fixbuddy/app/modules/address/views/address_view.dart';
 import 'package:fixbuddy/app/modules/allservices/bindings/all_service_binding.dart';
 import 'package:fixbuddy/app/modules/allservices/views/all_service_view.dart';
 import 'package:fixbuddy/app/modules/auth/bindings/verify_otp_binding.dart';
 import 'package:fixbuddy/app/modules/auth/views/verify_otp_screen.dart';
+import 'package:fixbuddy/app/modules/booking/bindings/booking_binding.dart';
 import 'package:fixbuddy/app/modules/category/bindings/category_binding.dart';
 import 'package:fixbuddy/app/modules/category/views/category_view.dart';
 import 'package:fixbuddy/app/modules/language/bindings/language_binding.dart';
@@ -18,8 +21,6 @@ import 'package:fixbuddy/app/modules/subCategory/views/sub_category_view.dart';
 import 'package:get/get.dart';
 import 'package:fixbuddy/app/modules/Notification/bindings/notification_binding.dart';
 import 'package:fixbuddy/app/modules/Notification/views/notification_view.dart';
-import 'package:fixbuddy/app/modules/booking/bindings/booking_binding.dart'
-    show BookingBinding;
 import 'package:fixbuddy/app/modules/profile/bindings/profile_binding.dart'
     show ProfileBinding;
 import 'package:fixbuddy/app/modules/settings/bindings/setting_binding.dart';
@@ -73,7 +74,7 @@ class AppPages {
 
     GetPage(
       name: Routes.booking,
-      page: () => const BookingView(),
+      page: () => BookingView(),
       binding: BookingBinding(),
     ),
     GetPage(
@@ -120,5 +121,10 @@ class AppPages {
     ),
 
     GetPage(name: Routes.categorySearch, page: () => CategorySearchScreen()),
+    GetPage(
+      name: Routes.address,
+      page: () => AddressView(),
+      binding: AddressBinding(),
+    ),
   ];
 }

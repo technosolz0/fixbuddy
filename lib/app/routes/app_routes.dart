@@ -20,6 +20,7 @@ abstract class Routes {
   static const subcategory = _Paths.subcategory;
   static const allServices = _Paths.allServices;
   static const categorySearch = _Paths.categorySearch;
+  static const address = _Paths.address;
 }
 
 abstract class _Paths {
@@ -42,6 +43,6 @@ abstract class _Paths {
   static const category = '/category';
   static const subcategory = '/subcategory';
   static const allServices = '/allservices';
-  static const String categorySearch = '/category-search';
-
+  static const categorySearch = '/category-search';
+  static const address = '/address';
 }

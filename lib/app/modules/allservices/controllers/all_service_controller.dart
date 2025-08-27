@@ -1,232 +1,6 @@
-// import 'package:get/get.dart';
-// import 'package:razorpay_flutter/razorpay_flutter.dart';
-// import 'package:dio/dio.dart';
-
-// import 'package:fixbuddy/app/constants/api_constants.dart';
-// import 'package:fixbuddy/app/modules/allservices/services/service_service.dart';
-// import 'package:fixbuddy/app/modules/allservices/models/service_model.dart';
-// import 'package:fixbuddy/app/utils/local_storage.dart';
-
-// class AllServicesController extends GetxController {
-//   final VendorApiService _apiService = VendorApiService();
-//   final Dio _dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
-//   final LocalStorage localStorage = LocalStorage();
-
-//   var isLoading = false.obs;
-//   var vendorResponse = Rxn<VendorChargeResponse>();
-//   var errorMessage = ''.obs;
-//   RxInt userId = 0.obs;
-
-//   int? categoryId;
-//   int? subCategoryId;
-//   late Razorpay _razorpay;
-
-//   Map<String, dynamic>? _pendingBooking;
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-
-//     // Initialize arguments
-//     final args = Get.arguments as Map<String, dynamic>?;
-//     if (args != null) {
-//       categoryId = args['categoryId'] as int?;
-//       subCategoryId = args['subCategoryId'] as int?;
-//     }
-
-//     // Initialize Razorpay
-//     _razorpay = Razorpay();
-//     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-//     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-
-//     // Load user ID and fetch vendors
-//     _loadUserIdAndFetchVendors();
-//   }
-
-//   @override
-//   void onClose() {
-//     _razorpay.clear();
-//     super.onClose();
-//   }
-
-//   Future<void> _loadUserIdAndFetchVendors() async {
-//     try {
-//       final idString = await localStorage.getUserID();
-//       userId.value = int.tryParse(idString?.toString() ?? '') ?? 0;
-//       if (userId.value == 0) {
-//         errorMessage.value = 'User ID not found. Please log in again.';
-//         Get.snackbar('Error', errorMessage.value);
-//       }
-//       await fetchVendorsAndCharges();
-//     } catch (e) {
-//       errorMessage.value = 'Failed to load user ID: $e';
-//       Get.snackbar('Error', errorMessage.value);
-//     }
-//   }
-
-//   Future<void> fetchVendorsAndCharges() async {
-//     try {
-//       isLoading.value = true;
-//       errorMessage.value = '';
-
-//       final result = await _apiService.fetchVendorsAndCharges(
-//         categoryId,
-//         subCategoryId,
-//       );
-//       vendorResponse.value = result;
-//     } catch (e) {
-//       errorMessage.value = e.toString();
-//       Get.snackbar('Error', e.toString());
-//     } finally {
-//       isLoading.value = false;
-//     }
-//   }
-
-//   /// Start Razorpay Payment
-//   Future<void> startPayment({
-//     required int vendorId,
-//     required int categoryId,
-//     required int subCategoryId,
-//     required double amount,
-//   }) async {
-//     if (userId.value == 0) {
-//       Get.snackbar('Error', 'User ID not loaded. Please try again.');
-//       return;
-//     }
-
-//     try {
-//       final token = await localStorage.getToken();
-
-//       // Step 1: Create booking
-//       final bookingResponse = await _dio.post(
-//         '/api/bookings/',
-//         data: {
-//           'user_id': userId.value,
-//           'serviceprovider_id': vendorId,
-//           'category_id': categoryId,
-//           'subcategory_id': subCategoryId,
-//           'scheduled_time': DateTime.now().toIso8601String(),
-//           'status': 'pending',
-//         },
-//         options: Options(
-//           headers: token != null ? {'Authorization': 'Bearer $token'} : {},
-//         ),
-//       );
-
-//       if (bookingResponse.statusCode == 200 ||
-//           bookingResponse.statusCode == 200) {
-//         final int bookingId = bookingResponse.data['id'];
-
-//         // Step 2: Create Razorpay order
-//         final orderResponse = await _dio.post(
-//           '/api/payments/create-order',
-//           data: {'amount': amount.toInt()}, // Amount in rupees
-//           options: Options(
-//             headers: token != null ? {'Authorization': 'Bearer $token'} : {},
-//           ),
-//         );
-
-//         if (orderResponse.statusCode == 200) {
-//           final data = orderResponse.data;
-
-//           _pendingBooking = {
-//             'bookingId': bookingId,
-//             'amount': amount,
-//             'orderId': data['order_id'],
-//           };
-
-//           var options = {
-//             'key': data['key'],
-//             'amount': data['amount'] * 100, // Convert to paise
-//             'currency': data['currency'],
-//             'name': 'FixBuddy',
-//             'description': 'Service Booking',
-//             'order_id': data['order_id'],
-//           };
-
-//           _razorpay.open(options);
-//         } else {
-//           Get.snackbar('Error', 'Failed to create payment order');
-//         }
-//       } else {
-//         Get.snackbar('Error', 'Failed to create booking');
-//       }
-//     } catch (e) {
-//       Get.snackbar('Error', e.toString());
-//     }
-//   }
-
-//   /// Handle Razorpay success
-//   Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
-//     if (_pendingBooking != null) {
-//       await _createPayment(
-//         bookingId: _pendingBooking!['bookingId'],
-//         amount: _pendingBooking!['amount'],
-//         paymentId: response.paymentId!,
-//         orderId: response.orderId!,
-//         signature: response.signature!,
-//       );
-//       _pendingBooking = null;
-//     }
-//     Get.snackbar('Success', 'Payment successful!');
-//   }
-
-//   /// Handle Razorpay error
-//   void _handlePaymentError(PaymentFailureResponse response) {
-//     Get.snackbar('Payment Failed', response.message ?? 'Unknown error');
-//   }
-
-//   /// Save payment details in backend
-//   Future<void> _createPayment({
-//     required int bookingId,
-//     required double amount,
-//     required String paymentId,
-//     required String orderId,
-//     required String signature,
-//   }) async {
-//     try {
-//       final token = await localStorage.getToken();
-//       final response = await _dio.post(
-//         '/api/bookings/$bookingId/payment',
-//         data: {
-//           'booking_id': bookingId,
-//           'payment_id': paymentId,
-//           'order_id': orderId,
-//           'signature': signature,
-//           'amount': (amount * 100).toInt(), // Store in paise
-//           'currency': 'INR',
-//           'status': 'success',
-//         },
-//         options: Options(
-//           headers: token != null ? {'Authorization': 'Bearer $token'} : {},
-//         ),
-//       );
-
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         print('✅ Payment stored successfully: ${response.data}');
-//       } else {
-//         print('❌ Failed to store payment: ${response.data}');
-//         Get.snackbar('Error', 'Failed to store payment');
-//       }
-//     } catch (e) {
-//       print('❌ Error creating payment: $e');
-//       Get.snackbar('Error', 'Error creating payment: $e');
-//     }
-//   }
-
-//   /// Pull-to-refresh
-//   Future<void> refreshVendors() async {
-//     await fetchVendorsAndCharges();
-//   }
-
-//   /// Retry on error
-//   Future<void> retry() async {
-//     if (errorMessage.isNotEmpty) {
-//       await fetchVendorsAndCharges();
-//     }
-//   }
-// }
-
+import 'package:fixbuddy/app/modules/booking/controllers/booking_controller.dart';
+import 'package:fixbuddy/app/routes/app_routes.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:dio/dio.dart';
@@ -323,6 +97,31 @@ class AllServicesController extends GetxController {
     }
   }
 
+  /// Refresh authentication token
+  Future<bool> refreshToken() async {
+    try {
+      // Replace with your actual token refresh logic
+      final response = await _dio.post(
+        '/api/users/refresh-token', // Adjust endpoint as per your backend
+        data: {'user_id': userId.value},
+      );
+      if (response.statusCode == 200) {
+        final newToken = response.data['access_token'];
+        await localStorage.setToken(newToken);
+        print('Token refreshed successfully');
+        return true;
+      } else {
+        print(
+          'Failed to refresh token: ${response.statusCode} - ${response.data}',
+        );
+        return false;
+      }
+    } catch (e) {
+      print('Error refreshing token: $e');
+      return false;
+    }
+  }
+
   /// Start Razorpay Payment
   Future<void> startPayment({
     required int vendorId,
@@ -337,10 +136,11 @@ class AllServicesController extends GetxController {
     }
 
     try {
-      final token = await localStorage.getToken();
+      var token = await localStorage.getToken();
       if (token == null) {
         Get.snackbar('Error', 'Authentication token not found. Please log in.');
         print('Error: Authentication token not found');
+        Get.offAllNamed('/login'); // Redirect to login screen
         return;
       }
 
@@ -410,6 +210,29 @@ class AllServicesController extends GetxController {
             'Error',
             'Failed to create payment order: ${orderResponse.statusCode} - ${orderResponse.data}',
           );
+          if (orderResponse.statusCode == 401) {
+            // Attempt to refresh token
+            if (await refreshToken()) {
+              print('Retrying payment with refreshed token');
+              await startPayment(
+                vendorId: vendorId,
+                categoryId: categoryId,
+                subCategoryId: subCategoryId,
+                amount: amount,
+              );
+            } else {
+              Get.snackbar('Error', 'Session expired. Please log in again.');
+              Get.offAllNamed('/login'); // Redirect to login screen
+            }
+          } else if (orderResponse.statusCode == 500 &&
+              orderResponse.data.toString().contains(
+                'Razorpay authentication failed',
+              )) {
+            Get.snackbar(
+              'Error',
+              'Payment service unavailable. Please try again later.',
+            );
+          }
         }
       } else {
         print(
@@ -419,6 +242,21 @@ class AllServicesController extends GetxController {
           'Error',
           'Failed to create booking: ${bookingResponse.statusCode} - ${bookingResponse.data}',
         );
+        if (bookingResponse.statusCode == 401) {
+          // Attempt to refresh token
+          if (await refreshToken()) {
+            print('Retrying payment with refreshed token');
+            await startPayment(
+              vendorId: vendorId,
+              categoryId: categoryId,
+              subCategoryId: subCategoryId,
+              amount: amount,
+            );
+          } else {
+            Get.snackbar('Error', 'Session expired. Please log in again.');
+            Get.offAllNamed('/login'); // Redirect to login screen
+          }
+        }
       }
     } catch (e) {
       print('Error in startPayment: $e');
@@ -427,6 +265,21 @@ class AllServicesController extends GetxController {
         print(
           'DioException details: ${e.response?.data}, status: ${e.response?.statusCode}',
         );
+        if (e.response?.statusCode == 401) {
+          // Attempt to refresh token
+          if (await refreshToken()) {
+            print('Retrying payment with refreshed token');
+            await startPayment(
+              vendorId: vendorId,
+              categoryId: categoryId,
+              subCategoryId: subCategoryId,
+              amount: amount,
+            );
+          } else {
+            Get.snackbar('Error', 'Session expired. Please log in again.');
+            Get.offAllNamed('/login'); // Redirect to login screen
+          }
+        }
       }
     }
   }
@@ -450,6 +303,8 @@ class AllServicesController extends GetxController {
       Get.snackbar('Error', 'Payment succeeded but booking data is missing');
     }
     Get.snackbar('Success', 'Payment successful!');
+    // Optionally, navigate to bookings page
+    Get.offAllNamed(Routes.booking);
   }
 
   /// Handle Razorpay error
@@ -471,6 +326,7 @@ class AllServicesController extends GetxController {
       if (token == null) {
         Get.snackbar('Error', 'Authentication token not found. Please log in.');
         print('Error: Authentication token not found in _createPayment');
+        Get.offAllNamed('/login'); // Redirect to login screen
         return;
       }
 
@@ -509,6 +365,10 @@ class AllServicesController extends GetxController {
         print(
           'DioException details: ${e.response?.data}, status: ${e.response?.statusCode}',
         );
+        if (e.response?.statusCode == 401) {
+          Get.snackbar('Error', 'Session expired. Please log in again.');
+          Get.offAllNamed('/login'); // Redirect to login screen
+        }
       }
     }
   }
@@ -520,6 +380,7 @@ class AllServicesController extends GetxController {
       if (token == null) {
         Get.snackbar('Error', 'Authentication token not found. Please log in.');
         print('Error: Authentication token not found in fetchPaymentDetails');
+        Get.offAllNamed('/login'); // Redirect to login screen
         return false;
       }
 
@@ -545,6 +406,10 @@ class AllServicesController extends GetxController {
     } catch (e) {
       print('Error fetching payment details for booking $bookingId: $e');
       Get.snackbar('Error', 'No payment found or error occurred: $e');
+      if (e is DioException && e.response?.statusCode == 401) {
+        Get.snackbar('Error', 'Session expired. Please log in again.');
+        Get.offAllNamed('/login'); // Redirect to login screen
+      }
       return false;
     }
   }

@@ -228,6 +228,8 @@ class HomeController extends GetxController {
   var username = ''.obs;
   var location = ''.obs;
   final RxInt selectedIndex = 0.obs;
+  var isLoading = false.obs;
+  var errorMessage = ''.obs;
 
   final RxList<CategoryModel> categories = <CategoryModel>[].obs;
   final RxList<SubcategoryModel> subcategories = <SubcategoryModel>[].obs;
@@ -262,7 +264,7 @@ class HomeController extends GetxController {
     }
   }
 
-  void fetchCategories() async {
+  Future<void> fetchCategories() async {
     try {
       final List<CategoryModel> fetched = await _categoryApiService
           .fetchCategories();
@@ -459,5 +461,15 @@ class HomeController extends GetxController {
       backgroundColor: Colors.transparent,
       enableDrag: true,
     );
+  }
+
+  /// Pull-to-refresh
+  Future<void> refreshhome() async {
+    await fetchCategories();
+  }
+
+  /// Retry on error
+  Future<void> retry() async {
+    await fetchCategories();
   }
 }

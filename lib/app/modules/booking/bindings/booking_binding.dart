@@ -1,13 +1,9 @@
+import 'package:fixbuddy/app/modules/booking/controllers/booking_controller.dart';
 import 'package:get/get.dart';
-
-import '../controllers/booking_controller.dart';
 
 class BookingBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<BookingController>(
-      () => BookingController(),
-    );
+    Get.lazyPut<BookingController>(() => BookingController());
   }
 }
-

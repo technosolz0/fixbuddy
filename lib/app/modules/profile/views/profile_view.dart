@@ -589,8 +589,8 @@ class ProfileView extends StatelessWidget {
                                 value: controller.mobile.value,
                               ),
                               _buildInfoTile(
-                                icon: Icons.work,
-                                title: 'Designation',
+                                icon: Icons.business_center,
+                                title: 'Address',
                                 value: controller.address.value,
                               ),
                             ],
@@ -714,7 +714,9 @@ class ProfileView extends StatelessWidget {
           color: AppColors.primaryColor,
         ),
         onTap: () {
-          print('$title tapped: $value');
+          if (title == "Address") {
+            Get.toNamed(Routes.address);
+          }
         },
         backgroundColor: Colors.transparent,
         borderRadius: 12.r,

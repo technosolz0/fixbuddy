@@ -15,7 +15,7 @@ class MainScreen extends StatelessWidget {
 
   final List<Widget> screens = [
     HomeView(),
-    const BookingView(),
+    BookingView(),
     const WalletView(),
     ProfileView(),
   ];

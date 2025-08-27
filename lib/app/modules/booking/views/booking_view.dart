@@ -1,18 +1,25 @@
-import 'package:fixbuddy/app/utils/extensions.dart';
+import 'package:fixbuddy/app/modules/booking/views/widgets/booking_details.dart';
 import 'package:flutter/material.dart';
-import 'package:fixbuddy/app/constants/app_color.dart';
-import 'package:fixbuddy/app/widgets/customListTile.dart';
-import 'package:fixbuddy/app/widgets/custom_app_bar.dart';
+import 'package:get/get.dart';
+import 'package:fixbuddy/app/constants/app_color.dart'; // Ensure this path is correct
+import 'package:fixbuddy/app/modules/booking/controllers/booking_controller.dart';
+import 'package:fixbuddy/app/modules/booking/models/booking_model.dart';
+import 'package:fixbuddy/app/utils/extensions.dart'; // Assuming this is for context.isLightTheme
+import 'package:fixbuddy/app/widgets/customListTile.dart'; // Keep this if you're using it, but we'll rebuild the card logic
+import 'package:fixbuddy/app/widgets/custom_app_bar.dart'; // Your custom app bar
 
 class BookingView extends StatelessWidget {
-  const BookingView({super.key});
+  BookingView({super.key});
+
+  final BookingController controller = Get.put(BookingController());
 
   @override
   Widget build(BuildContext context) {
+    controller.fetchAllBookings();
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: const CustomAppBar(title: 'My Bookings', centerTitle: true),
+      appBar: CustomAppBar(title: 'My Bookings', centerTitle: true),
       body: Stack(
         children: [
           // Top gradient background
@@ -25,99 +32,186 @@ class BookingView extends StatelessWidget {
             ),
           ),
 
-          // Booking list
+          // Booking list with RefreshIndicator
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: ListView(
-              children: [
-                const SizedBox(height: 16),
-                _buildBookingCard(
-                  title: 'AC Repair Service',
-                  status: 'Completed',
-                  date: '25 Jun 2025',
-                  price: '₹1200',
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Obx(() {
+              if (controller.isLoadingAllBookings.value) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
+                );
+              }
+
+              if (controller.errorMessage.isNotEmpty) {
+                return Center(
+                  child: Text(
+                    controller.errorMessage.value,
+                    style: const TextStyle(color: AppColors.errorColor),
+                  ),
+                );
+              }
+
+              if (controller.allBookings.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No bookings found",
+                    style: TextStyle(color: AppColors.grayColor, fontSize: 16),
+                  ),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: () => controller.fetchAllBookings(),
+                color: AppColors.primaryColor,
+                child: ListView.separated(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  itemCount: controller.allBookings.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final booking = controller.allBookings[index];
+                    return _buildBookingCard(
+                      title: booking.subcategory.name, // Service Name
+                      status: booking.status,
+                      date: booking.scheduledTime != null
+                          ? booking.scheduledTime!.toLocal().toString().split(
+                              ' ',
+                            )[0]
+                          : "Not Scheduled",
+                      price: "₹1200", // Placeholder
+                      booking: booking,
+                    );
+                  },
                 ),
-                const SizedBox(height: 12),
-                _buildBookingCard(
-                  title: 'Pest Control',
-                  status: 'Scheduled',
-                  date: '30 Jun 2025',
-                  price: '₹1500',
-                ),
-                const SizedBox(height: 12),
-                _buildBookingCard(
-                  title: 'Salon at Home',
-                  status: 'Cancelled',
-                  date: '20 Jun 2025',
-                  price: '₹800',
-                ),
-              ],
-            ),
+              );
+            }),
           ),
         ],
       ),
     );
   }
 
-  // Booking card widget
+  // --- New and improved _buildBookingCard widget ---
   Widget _buildBookingCard({
     required String title,
     required String status,
     required String date,
     required String price,
+    required BookingResponse booking,
   }) {
     Color statusColor;
+    IconData statusIcon;
 
     switch (status) {
       case 'Completed':
-        statusColor = Colors.green;
+        statusColor = AppColors.successColor;
+        statusIcon = Icons.check_circle_rounded;
         break;
       case 'Scheduled':
-        statusColor = Colors.orange;
+        statusColor = AppColors.warningColor;
+        statusIcon = Icons.pending_actions_rounded;
         break;
       case 'Cancelled':
-        statusColor = Colors.red;
+        statusColor = AppColors.errorColor;
+        statusIcon = Icons.cancel_rounded;
         break;
       default:
-        statusColor = Colors.grey;
+        statusColor = AppColors.grayColor;
+        statusIcon = Icons.info_outline;
     }
 
+    return GestureDetector(
+      onTap: () {
+        Get.to(() => BookingDetailView(bookingId: booking.id));
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  _buildStatusTag(status, statusColor, statusIcon),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today_rounded,
+                    size: 16,
+                    color: AppColors.grayColor,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    date,
+                    style: const TextStyle(
+                      color: AppColors.textColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  const Icon(
+                    Icons.currency_rupee_rounded,
+                    size: 16,
+                    color: AppColors.grayColor,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    price,
+                    style: const TextStyle(
+                      color: AppColors.textColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper widget to build the status tag
+  Widget _buildStatusTag(String status, Color color, IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            status,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
           ),
         ],
-      ),
-      child: CustomListTile(
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          '$date  •  ₹$price',
-          style: const TextStyle(color: Colors.black54),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            status,
-            style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
-          ),
-        ),
-        onTap: () {
-          // action
-        },
       ),
     );
   }
