@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:fixbuddy/app/constants/app_color.dart';
+import 'package:fixbuddy/app/modules/profile/widgets/dialogs_profile.dart';
 import 'package:fixbuddy/app/modules/settings/controllers/setting_controller.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/widgets/customListTile.dart';
@@ -33,7 +34,7 @@ class SettingView extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                controller.logout();
+                // controller.logout();
                 Get.back();
               },
               child: const Text('Yes'),
@@ -281,7 +282,7 @@ class SettingView extends StatelessWidget {
                               Icons.arrow_forward_ios,
                               size: 15,
                             ),
-                            onTap: () => controller.referFriend(),
+                            // onTap: () => controller.referFriend(),
                             backgroundColor: Colors.white,
                             borderRadius: 0,
                           ),
@@ -343,7 +344,7 @@ class SettingView extends StatelessWidget {
                             ),
                             onTap: () {
                               print('Request Account Deletion tapped');
-                              // Implement account deletion dialog
+                              showDeleteAccountDialog(context, controller, 1);
                             },
                             backgroundColor: Colors.white,
                             borderRadius: 0,
