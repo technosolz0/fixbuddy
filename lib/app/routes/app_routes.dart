@@ -7,6 +7,7 @@ abstract class Routes {
   static const register = _Paths.register;
   static const verifyOtp = _Paths.verifyOtp;
   static const login = _Paths.login;
+  static const forgotPassword = _Paths.forgotPassword;
   static const providerRegister = _Paths.providerRegister;
   static const serviceLocationScreen = _Paths.serviceLocationScreen;
   static const home = _Paths.home;
@@ -30,6 +31,7 @@ abstract class _Paths {
   static const register = '/register';
   static const verifyOtp = '/verify-otp';
   static const login = '/login';
+  static const forgotPassword = '/forgot-password';
   static const providerRegister = '/providerRegister';
   static const serviceLocationScreen = '/serviceLocationScreen';
   static const home = '/home';
