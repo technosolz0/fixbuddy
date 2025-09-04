@@ -105,6 +105,8 @@ class SplashController extends GetxController {
       // Everything good, move to main screen
       Get.offAllNamed(Routes.mainScreen);
     }
+
+    ServexUtils.checkForUpdate();
   }
 
   Future<void> completeOnboarding() async {
