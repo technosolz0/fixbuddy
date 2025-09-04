@@ -24,6 +24,7 @@
 //   }
 // }
 
+import 'package:fixbuddy/app/modules/splash/views/onboard_view.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/utils/local_storage.dart';
 import 'package:fixbuddy/app/utils/servex_utils.dart';
@@ -89,7 +90,7 @@ class SplashController extends GetxController {
         .inDays;
 
     if (!isOnboarded) {
-      // Get.offAll(() => const OnboardView());
+      Get.offAll(() => OnboardView());
     } else if (registrationStatus != 4 &&
         daysSinceLastReg > 7 &&
         lastRegisteredDateStr != '2001-01-01 00:00:00.000') {
