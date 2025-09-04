@@ -66,8 +66,8 @@ class SettingController extends GetxController {
       ServexUtils.hideOverlayLoadingDialog();
       //go to login page
       Get.offAllNamed(Routes.login);
-    } else {
-    } 
+      // ignore: dead_code
+    } else {}
   }
 
   void toggleObscurePassword() {

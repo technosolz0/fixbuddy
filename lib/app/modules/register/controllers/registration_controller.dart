@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:fixbuddy/app/constants/app_color.dart';
+import 'package:fixbuddy/app/constants/custom_overlay.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/services/auth_api_service.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,32 +21,21 @@ class RegistrationController extends GetxController {
 
   Future<void> registerUser() async {
     final name = nameController.text.trim();
-    final email = emailController.text.trim();
+    final email = emailController.text.trim().toLowerCase();
     final mobile = mobileController.text.trim();
 
     if (name.isEmpty || email.isEmpty || mobile.isEmpty) {
-      Get.closeAllSnackbars();
-      Get.snackbar(
-        'Missing Fields',
-        'Please fill in all details',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.showSnackbar(SnackType.error, 'Please fill in all details');
       return;
     }
 
     if (!isValidEmail(email)) {
-      Get.closeAllSnackbars();
-      Get.snackbar(
-        'Invalid Email',
-        'Enter a valid email address',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.showSnackbar(SnackType.error, 'Enter a valid email address');
       return;
     }
 
     isLoading.value = true;
+    ServexUtils.showLoader();
 
     try {
       final response = await _apiService.sendRegistrationOtp(
@@ -54,42 +44,26 @@ class RegistrationController extends GetxController {
         mobile: mobile,
       );
 
-      if (response.statusCode == 200) {
-        Get.closeAllSnackbars();
-        Get.snackbar(
-          'Success',
-          'OTP sent to your email',
-          backgroundColor: AppColors.successColor,
-          colorText: Colors.white,
-        );
+      if (response?.statusCode == 200) {
+        ServexUtils.showSnackbar(SnackType.success, 'OTP sent to your email');
+
         Get.toNamed(
           Routes.verifyOtp,
           arguments: {'email': email, 'flowType': 'register'},
         );
       } else {
-        Get.snackbar(
-          'Error',
-          'Registration failed',
-          backgroundColor: AppColors.errorColor,
-          colorText: Colors.white,
+        ServexUtils.showSnackbar(
+          SnackType.error,
+          response?.data['detail'] ?? 'Registration failed',
         );
       }
-    } on DioError catch (e) {
-      Get.snackbar(
-        'Error',
-        e.response?.data['detail'] ?? 'Something went wrong',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+    } on DioException catch (e) {
+      ServexUtils.dioExceptionHandler(e);
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Unexpected error: $e',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.showSnackbar(SnackType.error, 'Unexpected error: $e');
     } finally {
       isLoading.value = false;
+      ServexUtils.hideLoader();
     }
   }
 

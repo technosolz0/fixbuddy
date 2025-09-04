@@ -37,9 +37,6 @@ class _SubCategoryViewState extends State<SubCategoryView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final categoryId = Get.arguments != null && Get.arguments.isNotEmpty
-        ? Get.arguments[0]
-        : null;
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Sub Categories', centerTitle: true),
