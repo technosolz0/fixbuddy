@@ -323,23 +323,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         ],
                       ),
                       SizedBox(height: 24.h),
-                      Obx(
-                        () => CustomDateTimePicker(
-                          title: 'Date Of Birth',
-                          date: controller.selectedDOB.value,
-                          onPressed: () async {
-                            controller.selectedDOB.value = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(1900),
-                              lastDate: DateTime.now(),
-                              initialEntryMode:
-                                  DatePickerEntryMode.calendarOnly,
-                            );
-                            controller.isProfileChanged = true;
-                          },
-                        ),
-                      ),
+                      
                       SizedBox(height: 42.h),
                       const TitleText(text: "Location"),
                       SizedBox(height: 24.h),
