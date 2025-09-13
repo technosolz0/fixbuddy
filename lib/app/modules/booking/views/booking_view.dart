@@ -5,7 +5,6 @@ import 'package:fixbuddy/app/constants/app_color.dart'; // Ensure this path is c
 import 'package:fixbuddy/app/modules/booking/controllers/booking_controller.dart';
 import 'package:fixbuddy/app/modules/booking/models/booking_model.dart';
 import 'package:fixbuddy/app/utils/extensions.dart'; // Assuming this is for context.isLightTheme
-import 'package:fixbuddy/app/widgets/customListTile.dart'; // Keep this if you're using it, but we'll rebuild the card logic
 import 'package:fixbuddy/app/widgets/custom_app_bar.dart'; // Your custom app bar
 
 class BookingView extends StatelessWidget {
