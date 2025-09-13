@@ -1,6 +1,5 @@
-import 'package:fixbuddy/app/modules/booking/controllers/booking_controller.dart';
+
 import 'package:fixbuddy/app/routes/app_routes.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:dio/dio.dart';

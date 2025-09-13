@@ -1,5 +1,4 @@
 import 'package:fixbuddy/app/modules/allservices/controllers/all_service_controller.dart';
-import 'package:fixbuddy/app/modules/allservices/models/service_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
@@ -60,12 +59,11 @@ class AllServicesView extends StatelessWidget {
               }
 
               if (controller.vendorResponse.value == null ||
-                  controller.vendorResponse.value!.vendors == null ||
-                  controller.vendorResponse.value!.vendors!.isEmpty) {
+                  controller.vendorResponse.value!.vendors.isEmpty) {
                 return const Center(child: Text("No services available"));
               }
 
-              final vendors = controller.vendorResponse.value!.vendors!;
+              final vendors = controller.vendorResponse.value!.vendors;
 
               return RefreshIndicator(
                 onRefresh: () => controller.refreshVendors(),
@@ -76,6 +74,7 @@ class AllServicesView extends StatelessWidget {
 
                     final vendorName = vendor.vendorDetails?.name ?? "No Name";
                     final vendorId = vendor.vendorDetails?.id ?? 0;
+                    // ignore: unnecessary_null_comparison
                     final vendorPrice = vendor.serviceCharge != null
                         ? "₹${vendor.serviceCharge}"
                         : "0";
@@ -85,7 +84,7 @@ class AllServicesView extends StatelessWidget {
                       child: _buildAllServicesCard(
                         vendorId: vendorId,
                         title: vendorName,
-                        date: "—", // TODO: replace with API date if available
+                        // date: "—", // TODO: replace with API date if available
                         price: vendorPrice,
                         controller: controller,
                       ),
@@ -103,7 +102,7 @@ class AllServicesView extends StatelessWidget {
   Widget _buildAllServicesCard({
     required int vendorId,
     required String title,
-    required String date,
+    // required String date,
     required String price,
     double rating = 0.0, // added rating param
     required AllServicesController controller,

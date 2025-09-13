@@ -1,6 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:fixbuddy/app/constants/api_constants.dart';
+import 'package:fixbuddy/app/modules/splash/views/mandatory_update_denied.dart';
+import 'package:fixbuddy/app/modules/splash/views/widgets/install_update_bottomsheet.dart';
+import 'package:fixbuddy/app/utils/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,6 +25,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ServexUtils {
+  static void unfocusKeyboard() {
+    if (FocusManager.instance.primaryFocus != null) {
+      FocusManager.instance.primaryFocus!.unfocus();
+    }
+  }
+
   //logout
   static Future logOut({bool showLoaders = true, bool callAPI = true}) async {
     if (showLoaders) ServexUtils.showOverlayLoadingDialog();
@@ -203,5 +214,129 @@ class ServexUtils {
   /// To hide a currently displayed overlay loading dialog
   static hideOverlayLoadingDialog() {
     Navigator.of(Get.overlayContext!).pop();
+  }
+
+  static BaseOptions get getDioOptions => BaseOptions(
+    baseUrl: ApiConstants.baseUrl,
+    receiveDataWhenStatusError: true,
+    connectTimeout: const Duration(seconds: 60), // 60 seconds
+    receiveTimeout: const Duration(seconds: 60), // 60 seconds
+  );
+
+  static void dioExceptionHandler(DioException e) {
+    String snackbarTitle = 'error';
+    String snackbarBody = 'Some error occured.';
+    switch (e.type) {
+      case DioExceptionType.connectionError:
+        snackbarTitle = 'No Internet';
+        snackbarBody = 'Please make sure you are connected to the Internet.';
+        break;
+      default:
+        snackbarTitle = 'error';
+        snackbarBody = 'Some error occured.';
+    }
+
+    ServexUtils.showSnackbar(SnackType.info, '$snackbarTitle - $snackbarBody');
+  }
+
+  //check for updates
+  static Future checkForUpdate() async {
+    try {
+      ServexUtils.dPrint(
+        '--->version_check: fetching version code from Remote Config',
+      );
+      String appVersionFromRC = await FRemoteConfig().getCurrentVersionCode();
+      ServexUtils.dPrint(
+        '--->version_check: App version from Remote Config: $appVersionFromRC',
+      );
+
+      PackageInfo packageinfo = await PackageInfo.fromPlatform();
+      String currentVersion = packageinfo.version;
+      ServexUtils.dPrint('--->version_check: Current Version: $currentVersion');
+
+      List<String> rcVersionSpl = appVersionFromRC.split('.');
+      List<String> localVersionSpl = currentVersion.split('.');
+      if (rcVersionSpl.length == 3 && localVersionSpl.length == 3) {
+        if (rcVersionSpl[0] != localVersionSpl[0] ||
+            rcVersionSpl[1] != localVersionSpl[1]) {
+          updateType = 'immediate';
+        }
+      }
+    } catch (e) {
+      ServexUtils.dPrint(
+        '--->version_check:version resolution error from Remote Config & Local: $e',
+      );
+    }
+
+    if (kDebugMode) {
+      print('--->version_check: Update Type: $updateType');
+    }
+
+    if (Platform.isAndroid) {
+      ServexUtils.dPrint('--->updates_android:Checking for new udpates');
+      //checking for new updates
+      InAppUpdate.checkForUpdate()
+          .then((AppUpdateInfo info) {
+            if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+              ServexUtils.dPrint(
+                '--->updates_android:New update available, starting the download: AppUpdateinfo:${info.toString()}',
+              );
+
+              //immediately download and install
+              if (updateType == 'immediate') {
+                InAppUpdate.performImmediateUpdate().then((value) {
+                  if (value == AppUpdateResult.success) {
+                    ServexUtils.dPrint(
+                      '--->updates_android:Immediate updates installed',
+                    );
+                    ServexUtils.showSnackbar(
+                      SnackType.success,
+                      'The update has been installed successfully',
+                    );
+                  } else if (value == AppUpdateResult.userDeniedUpdate) {
+                    handleUserDeniedMandatoryUpdate();
+                  }
+                });
+              }
+              //downloading the updates in background
+              //startFlexibleUpdates for background
+              else if (updateType == 'flexible') {
+                InAppUpdate.startFlexibleUpdate().then((value) {
+                  if (value == AppUpdateResult.success) {
+                    Fluttertoast.showToast(msg: 'Update downloaded');
+                    ServexUtils.dPrint(
+                      '--->updates_android:Flexible updates downloaded, installing new updates',
+                    );
+                    //after download, ask for installing the updates
+                    updateReadyForInstallation(() {
+                      Get.back();
+                      Fluttertoast.showToast(msg: 'Installing update...');
+                      InAppUpdate.completeFlexibleUpdate().then((value) {
+                        ServexUtils.dPrint(
+                          '--->updates_android:Flexible updates installed',
+                        );
+                        ServexUtils.showSnackbar(
+                          SnackType.success,
+                          'The update has been installed successfully',
+                        );
+                      });
+                    });
+                  }
+                });
+              }
+            }
+          })
+          .catchError((e) {
+            ServexUtils.dPrint(
+              '--->updates_android: error occured while checking for updates: $e',
+            );
+          });
+    }
+  }
+
+  //handle update denied
+  static void handleUserDeniedMandatoryUpdate() {
+    ServexUtils.dPrint('--->updates: user denied mandatory update');
+    Get.to(() => const MandatoryUpdateDenied());
   }
 }

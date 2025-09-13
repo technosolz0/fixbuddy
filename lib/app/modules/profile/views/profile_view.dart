@@ -377,7 +377,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
-import 'package:fixbuddy/app/data/models/user_model.dart';
 import 'package:fixbuddy/app/modules/profile/controllers/profile_controller.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/widgets/customListTile.dart';

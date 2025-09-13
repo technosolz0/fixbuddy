@@ -1,11 +1,12 @@
-import 'package:fixbuddy/app/constants/app_color.dart';
+import 'package:dio/dio.dart';
+import 'package:fixbuddy/app/constants/custom_overlay.dart';
 import 'package:fixbuddy/app/data/models/user_cached_model.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/services/auth_api_service.dart';
 import 'package:fixbuddy/app/utils/local_storage.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:dio/dio.dart';
 
 class VerifyOtpController extends GetxController {
   final otpControllers = List.generate(6, (_) => TextEditingController());
@@ -19,162 +20,115 @@ class VerifyOtpController extends GetxController {
 
   Future<void> handleOtpVerification(String email, String flowType) async {
     if (otp.length < 6) {
-      Get.snackbar(
-        'Invalid',
+      ServexUtils.showSnackbar(
+        SnackType.error,
         'Please enter complete 6-digit OTP',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
       );
       return;
     }
 
     isLoading.value = true;
+    ServexUtils.showLoader();
 
     try {
       if (flowType == 'register') {
-        await verifyRegisterOtp(email);
+        await _verifyRegisterOtp(email);
       } else if (flowType == 'login') {
-        await verifyLoginOtp(email);
+        await _verifyLoginOtp(email);
       } else {
-        Get.snackbar(
-          'Error',
-          'Unknown flow type',
-          backgroundColor: AppColors.errorColor,
-          colorText: Colors.white,
-        );
+        ServexUtils.showSnackbar(SnackType.error, 'Unknown flow type');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Unexpected error: $e',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.showSnackbar(SnackType.error, 'Unexpected error: $e');
     } finally {
       isLoading.value = false;
+      ServexUtils.hideLoader();
     }
   }
 
-  Future<void> verifyRegisterOtp(String email) async {
+  Future<void> _verifyRegisterOtp(String email) async {
     try {
       final response = await _apiService.verifyRegistrationOtp(
         email: email,
         otp: otp,
       );
 
-      if (response.statusCode == 200) {
-        // await _saveUserSession(response.data);
-        Get.snackbar(
-          'Success',
-          'Registration successful!',
-          backgroundColor: AppColors.successColor,
-          colorText: Colors.white,
-        );
+      if (response?.statusCode == 200) {
+        ServexUtils.showSnackbar(SnackType.success, 'Registration successful!');
         Get.offAllNamed(Routes.mainScreen);
       } else {
-        Get.snackbar(
-          'Invalid OTP',
-          response.data['detail'] ?? 'Invalid or expired OTP.',
-          backgroundColor: AppColors.errorColor,
-          colorText: Colors.white,
+        ServexUtils.showSnackbar(
+          SnackType.error,
+          response?.data['detail'] ?? 'Invalid or expired OTP.',
         );
       }
     } on DioException catch (e) {
-      Get.snackbar(
-        'Network Error',
-        e.response?.data['detail'] ?? 'Failed to verify registration OTP.',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.dioExceptionHandler(e);
     }
   }
 
-  Future<void> verifyLoginOtp(String email) async {
+  Future<void> _verifyLoginOtp(String email) async {
     try {
       final response = await _apiService.verifyLoginOtp(email: email, otp: otp);
 
-      if (response.statusCode == 200) {
-        await _saveUserSession(response.data);
-
-        final data = response.data;
+      if (response?.statusCode == 200) {
+        final data = response!.data;
         final token = data['access_token'];
-        // final id = data['user']['id'];
-        final msg = data['message'] ?? 'Login successfully!';
+        final message = data['message'] ?? 'Login successful!';
+
         if (token != null) {
+          await _saveUserSession(data);
           await _localStorage.setToken(token);
         }
-        Get.snackbar(
-          'Success',
-          msg,
-          backgroundColor: AppColors.successColor,
-          colorText: Colors.white,
-        );
 
+        ServexUtils.showSnackbar(SnackType.success, message);
         Get.offAllNamed(Routes.mainScreen);
       } else {
-        Get.snackbar(
-          'Invalid OTP',
-          response.data['detail'] ?? 'Invalid or expired OTP.',
-          backgroundColor: AppColors.errorColor,
-          colorText: Colors.white,
+        ServexUtils.showSnackbar(
+          SnackType.error,
+          response?.data['detail'] ?? 'Invalid or expired OTP.',
         );
       }
     } on DioException catch (e) {
-      print('errrrr $e');
-      Get.snackbar(
-        'Network Error',
-        e.response?.data['detail'] ?? 'Failed to verify login OTP.',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.dioExceptionHandler(e);
     }
   }
 
-  /// ✅ RESEND OTP handler for both 'register' and 'login'
   Future<void> resendOtp(String email, String flowType) async {
     isResending.value = true;
+    ServexUtils.showLoader();
 
     try {
-      Response response;
+      Response? response;
 
       if (flowType == 'register') {
         response = await _apiService.resendRegistrationOtp(email);
       } else if (flowType == 'login') {
         response = await _apiService.resendLoginOtp(email);
       } else {
-        Get.snackbar(
-          'Error',
+        ServexUtils.showSnackbar(
+          SnackType.error,
           'Unknown flow type for resend.',
-          backgroundColor: AppColors.errorColor,
-          colorText: Colors.white,
         );
         return;
       }
 
-      if (response.statusCode == 200) {
-        Get.snackbar(
-          'OTP Sent',
+      if (response?.statusCode == 200) {
+        ServexUtils.showSnackbar(
+          SnackType.success,
           'A new OTP has been sent to your email.',
-          backgroundColor: AppColors.successColor,
-          colorText: Colors.white,
         );
       } else {
-        Get.snackbar(
-          'Failed',
-          response.data['detail'] ?? 'Failed to resend OTP.',
-          backgroundColor: AppColors.errorColor,
-          colorText: Colors.white,
+        ServexUtils.showSnackbar(
+          SnackType.error,
+          response?.data['detail'] ?? 'Failed to resend OTP.',
         );
       }
     } on DioException catch (e) {
-      Get.snackbar(
-        'Network Error',
-        e.response?.data['detail'] ?? 'Failed to resend OTP.',
-        backgroundColor: AppColors.errorColor,
-        colorText: Colors.white,
-      );
+      ServexUtils.dioExceptionHandler(e);
     } finally {
       isResending.value = false;
+      ServexUtils.hideLoader();
     }
   }
 

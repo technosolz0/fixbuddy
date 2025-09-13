@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:dio/dio.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart' as getx;
@@ -65,7 +63,7 @@ class AuthServices {
 
           await LocalStorage().setToken(response.data['jwtToken'].toString());
           // await LocalStorage().setUserID(userID);
-          await LocalStorage().setIsOnboarded(isUserOnboarded);
+          await LocalStorage().setUserOnboarded(isUserOnboarded);
           await LocalStorage().setAllGoalsProvided(isAllGoalsSetup);
           await LocalStorage().setUserDetails(userDetails);
           await LocalStorage().setLastLoginDate(DateTime.now());
@@ -274,5 +272,4 @@ class AuthServices {
     }
     return false;
   }
-  
 }
