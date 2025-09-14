@@ -67,7 +67,7 @@ class BookingView extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.only(top: 16.0),
                   itemCount: controller.allBookings.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final booking = controller.allBookings[index];
                     return _buildBookingCard(

@@ -15,14 +15,21 @@ class VendorChargeResponse {
 class Vendor {
   final int id;
   final double serviceCharge;
+  final double rating; // Added rating field
   final VendorDetails? vendorDetails;
 
-  Vendor({required this.id, required this.serviceCharge, this.vendorDetails});
+  Vendor({
+    required this.id,
+    required this.serviceCharge,
+    required this.rating, // Added rating to constructor
+    this.vendorDetails,
+  });
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     return Vendor(
       id: json['id'] ?? 0,
       serviceCharge: (json['service_charge'] ?? 0).toDouble(),
+      rating: (json['rating'] ?? 0).toDouble(), // Parse rating from JSON
       vendorDetails: json['vendor_details'] != null
           ? VendorDetails.fromJson(json['vendor_details'])
           : null,

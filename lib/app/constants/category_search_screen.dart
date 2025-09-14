@@ -52,7 +52,7 @@ class CategorySearchScreen extends StatelessWidget {
               return ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 itemCount: filtered.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (_, index) {
                   final cat = filtered[index];
                   return ListTile(

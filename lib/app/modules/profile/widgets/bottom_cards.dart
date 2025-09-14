@@ -9,11 +9,11 @@ class BottomCard extends StatelessWidget {
   final List<Widget> children;
 
   const BottomCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.children,
     this.titleWidget,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

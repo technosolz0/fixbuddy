@@ -71,7 +71,7 @@ class CustomSnackbar {
     );
   }
 
-  static show({
+  static void show({
     String? message,
     required BuildContext context,
     SnackAlignment alignment = SnackAlignment.bottom,
@@ -86,7 +86,7 @@ class CustomSnackbar {
     _insertOverlay(context);
   }
 
-  static _insertOverlay(BuildContext context) async {
+  static Future<void> _insertOverlay(BuildContext context) async {
     Navigator.of(context).overlay!.insert(_overlayEntry!);
 
     _timer = Timer(const Duration(seconds: 3), () {

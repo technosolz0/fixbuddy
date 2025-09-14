@@ -52,6 +52,8 @@ class RegistrationController extends GetxController {
           arguments: {'email': email, 'flowType': 'register'},
         );
       } else {
+        isLoading.value = false;
+        ServexUtils.hideLoader();
         ServexUtils.showSnackbar(
           SnackType.error,
           response?.data['detail'] ?? 'Registration failed',

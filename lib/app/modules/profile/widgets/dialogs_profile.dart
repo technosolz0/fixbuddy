@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-showRateDialog(BuildContext context) {
+void showRateDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (_) {
@@ -77,7 +77,7 @@ showRateDialog(BuildContext context) {
   );
 }
 
-showDeleteAccountDialog(
+void showDeleteAccountDialog(
   BuildContext context,
   SettingController controller,
   int type,

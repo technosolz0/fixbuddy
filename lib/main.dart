@@ -1,27 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:fixbuddy/app/modules/home/bindings/home_binding.dart';
-
-// import 'app/routes/app_pages.dart';
-
-// void main() {
-//   runApp(const App());
-// }
-
-// class App extends StatelessWidget {
-//   const App({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetMaterialApp(
-//       title: "Servex App",
-//       initialRoute: AppPages.initial,
-//       initialBinding: HomeBinding(),
-//       getPages: AppPages.routes,
-//     );
-//   }
-// }
-
 import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -175,13 +151,13 @@ class _ServexAppState extends State<ServexApp> with WidgetsBindingObserver {
     LocalNotifications.getTerminatedTapLaunchDetails();
   }
 
-  setLocale(Locale locale) {
+  void setLocale(Locale locale) {
     setState(() {
       _locale = locale;
     });
   }
 
-  setThemeMode(ThemeMode theme) {
+  void setThemeMode(ThemeMode theme) {
     setState(() {
       appThemeMode.value = theme;
     });

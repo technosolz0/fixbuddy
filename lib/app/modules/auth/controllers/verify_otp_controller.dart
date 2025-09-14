@@ -54,7 +54,16 @@ class VerifyOtpController extends GetxController {
       );
 
       if (response?.statusCode == 200) {
-        ServexUtils.showSnackbar(SnackType.success, 'Registration successful!');
+        final data = response!.data;
+        final token = data['access_token'];
+        final message = data['message'] ?? 'Login successful!';
+
+        if (token != null) {
+          await _saveUserSession(data);
+          await _localStorage.setToken(token);
+        }
+
+        ServexUtils.showSnackbar(SnackType.success, message);
         Get.offAllNamed(Routes.mainScreen);
       } else {
         ServexUtils.showSnackbar(

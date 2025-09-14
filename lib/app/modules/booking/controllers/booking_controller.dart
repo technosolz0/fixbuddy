@@ -2,6 +2,7 @@ import 'package:fixbuddy/app/modules/booking/models/booking_model.dart';
 import 'package:fixbuddy/app/modules/booking/models/payment_model.dart';
 import 'package:fixbuddy/app/modules/booking/models/vendor_model.dart';
 import 'package:fixbuddy/app/modules/booking/services/booking_services.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:get/get.dart';
 
 class BookingController extends GetxController {
@@ -39,18 +40,18 @@ class BookingController extends GetxController {
       isLoadingBooking.value = true;
       final booking = await _bookingServices.fetchBookingDetails(bookingId);
       bookingDetails.value = booking;
-      print('Fetched booking details: ${bookingDetails.value}');
+      ServexUtils.dPrint('Fetched booking details: ${bookingDetails.value}');
       isLoadingPayment.value = true;
       final payment = await _bookingServices.fetchPaymentDetails(bookingId);
       paymentDetails.value = payment;
-      print('Fetched payment details: ${paymentDetails.value}');
+      ServexUtils.dPrint('Fetched payment details: ${paymentDetails.value}');
 
       isLoadingVendor.value = true;
       final vendor = await _bookingServices.fetchVendorDetails(
         booking.serviceproviderId,
       );
       vendorDetails.value = vendor;
-      print('Fetched vendor details: ${vendorDetails.value}');
+      ServexUtils.dPrint('Fetched vendor details: ${vendorDetails.value}');
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar('Error', e.toString());
@@ -69,7 +70,7 @@ class BookingController extends GetxController {
 
       final bookings = await _bookingServices.fetchAllBookings();
       allBookings.assignAll(bookings);
-      print('Total bookings fetched: ${allBookings.length}');
+      ServexUtils.dPrint('Total bookings fetched: ${allBookings.length}');
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar('Error', e.toString());

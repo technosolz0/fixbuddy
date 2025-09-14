@@ -1,3 +1,7 @@
+// ignore: duplicate_ignore
+
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -5,7 +9,7 @@ Widget buildShimmerLoader() {
   return ListView.separated(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
     itemCount: 6,
-    separatorBuilder: (_, __) => const SizedBox(height: 12),
+    separatorBuilder: (_, _) => const SizedBox(height: 12),
     itemBuilder: (context, index) {
       return Shimmer.fromColors(
         baseColor: Colors.grey.shade300,

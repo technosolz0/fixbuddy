@@ -1,5 +1,6 @@
 import 'package:fixbuddy/app/modules/address/models/address_model.dart';
 import 'package:fixbuddy/app/modules/profile/controllers/profile_controller.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
@@ -53,7 +54,7 @@ class AddressController extends GetxController {
       }
     } catch (e, stackTrace) {
       Get.snackbar("Error", "Failed to add address: $e");
-      print('addAddress error: $e\n$stackTrace');
+      ServexUtils.dPrint('addAddress error: $e\n$stackTrace');
     } finally {
       isLoading.value = false;
     }
@@ -75,7 +76,7 @@ class AddressController extends GetxController {
       }
     } catch (e, stackTrace) {
       Get.snackbar("Error", "Failed to update address: $e");
-      print('updateAddress error: $e\n$stackTrace');
+      ServexUtils.dPrint('updateAddress error: $e\n$stackTrace');
     } finally {
       isLoading.value = false;
     }
@@ -96,7 +97,7 @@ class AddressController extends GetxController {
       }
     } catch (e, stackTrace) {
       Get.snackbar("Error", "Failed to delete address: $e");
-      print('deleteAddress error: $e\n$stackTrace');
+      ServexUtils.dPrint('deleteAddress error: $e\n$stackTrace');
     } finally {
       isLoading.value = false;
     }

@@ -7,32 +7,18 @@ import 'package:fixbuddy/app/utils/extensions.dart';
 class AppConstants {
   ///no. of days after which fcm token will be updated - 7
   static const int fcmTokenCheckDaysBuffer = 7;
-  //static IDs
-  static const String stepTaskID =
-      '+1h6Azs+N3L77hAQLJOjbQ=='; //hard coded task id for steps
-  static const String childrenDetailsGoalID =
-      'l9xlnXR1X4rW9c9i/RM1BQ=='; //hard coded children details task id for entering multitext childrent data
-  static const String socialMediaTask =
-      'wZ5aJxPvmEZR0giG7EeHuw=='; //hard coded social media task id for setting a task for fixed social media usage
-  static const String quizTaskID =
-      'B1hJ5OeCcnm1xUZC4X5lAw=='; //hard coded quiz task id to let us avoid yes/no input. Only get reminder time
-
   //data limits
   static const int durationPickerHourLimit = 6; //6 hours
   static const int durationPickerMinutesLimit = 59; //59 minutes
 
   //links
   static const String termsAndConditions = 'https://www.google.com';
-  static const String privacyPolicyLink = 'https://thelifetrackr.com/privacy/';
+  static const String privacyPolicyLink = 'https://serwex.in/privacy';
 
   static const String supportEmail = 'support@thelifetrackr.com';
 
   //deep links
-  static const String deepLink = 'https://app.thelifetrackr.com';
-
-  static const String taskReminderDLPath = 'task-reminder';
-  static const String taskReminderDLIDQuery = 'xvg';
-
+  static const String deepLink = 'https://serwex.in';
   // allowed extensions
   static const List<String> allowedImageExtensions = [
     '.jpg',

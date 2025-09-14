@@ -14,7 +14,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputAction textInputAction;
 
   const CustomTextFormField({
-    Key? key,
+    super.key,
     required this.name,
      this.hintText,
     required this.controller,
@@ -25,7 +25,7 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.textInputAction = TextInputAction.done,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

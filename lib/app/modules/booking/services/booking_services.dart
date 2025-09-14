@@ -5,6 +5,7 @@ import 'package:fixbuddy/app/modules/booking/models/payment_model.dart';
 import 'package:fixbuddy/app/modules/booking/models/vendor_charge_model.dart';
 import 'package:fixbuddy/app/modules/booking/models/vendor_model.dart';
 import 'package:fixbuddy/app/utils/local_storage.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 
 class BookingServices {
   final Dio _dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
@@ -70,7 +71,7 @@ class BookingServices {
         '/api/bookings',
       ); // Backend: returns all bookings for current user
       final List data = response.data;
-      print(' Fetched bookings: $data'); // Debug log
+      ServexUtils.dPrint(' Fetched bookings: $data'); // Debug log
       return data.map((json) => BookingResponse.fromJson(json)).toList();
     } on DioException catch (e) {
       throw _handleDioError(e);

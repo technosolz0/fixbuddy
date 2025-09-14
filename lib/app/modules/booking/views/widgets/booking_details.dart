@@ -7,8 +7,7 @@ import 'package:fixbuddy/app/modules/booking/controllers/booking_controller.dart
 class BookingDetailView extends StatelessWidget {
   final int bookingId;
 
-  const BookingDetailView({Key? key, required this.bookingId})
-    : super(key: key);
+  const BookingDetailView({super.key, required this.bookingId});
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +332,7 @@ class BookingDetailView extends StatelessWidget {
 
 // Custom DashedLine Widget for a receipt-like effect
 class DashedLine extends StatelessWidget {
-  const DashedLine({Key? key}) : super(key: key);
+  const DashedLine({super.key});
 
   @override
   Widget build(BuildContext context) {

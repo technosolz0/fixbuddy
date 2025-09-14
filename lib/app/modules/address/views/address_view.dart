@@ -72,7 +72,7 @@ class AddressView extends StatelessWidget {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             itemCount: profileController.alladdresses.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 14),
+            separatorBuilder: (_, _) => const SizedBox(height: 14),
             itemBuilder: (context, index) {
               final address = profileController.alladdresses[index];
               final isDefault = address.isDefault;

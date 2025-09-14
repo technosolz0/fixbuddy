@@ -1,5 +1,5 @@
-
 import 'package:fixbuddy/app/routes/app_routes.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:dio/dio.dart';
@@ -58,15 +58,15 @@ class AllServicesController extends GetxController {
       if (userId.value == 0) {
         errorMessage.value = 'User ID not found. Please log in again.';
         Get.snackbar('Error', errorMessage.value);
-        print('Error: $errorMessage');
+        ServexUtils.dPrint('Error: $errorMessage');
         return;
       }
-      print('User ID loaded: ${userId.value}');
+      ServexUtils.dPrint('User ID loaded: ${userId.value}');
       await fetchVendorsAndCharges();
     } catch (e) {
       errorMessage.value = 'Failed to load user ID: $e';
       Get.snackbar('Error', errorMessage.value);
-      print('Error: $errorMessage');
+      ServexUtils.dPrint('Error: $errorMessage');
     }
   }
 
@@ -75,7 +75,7 @@ class AllServicesController extends GetxController {
       if (categoryId == null || subCategoryId == null) {
         errorMessage.value = 'Category or Subcategory ID is missing';
         Get.snackbar('Error', errorMessage.value);
-        print('Error: $errorMessage');
+        ServexUtils.dPrint('Error: $errorMessage');
         return;
       }
       isLoading.value = true;
@@ -86,11 +86,13 @@ class AllServicesController extends GetxController {
         subCategoryId,
       );
       vendorResponse.value = result;
-      print('Vendors fetched successfully: ${result.vendors.length} vendors');
+      ServexUtils.dPrint(
+        'Vendors fetched successfully: ${result.vendors.length} vendors',
+      );
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar('Error', e.toString());
-      print('Error fetching vendors: $e');
+      ServexUtils.dPrint('Error fetching vendors: $e');
     } finally {
       isLoading.value = false;
     }
@@ -107,16 +109,16 @@ class AllServicesController extends GetxController {
       if (response.statusCode == 200) {
         final newToken = response.data['access_token'];
         await localStorage.setToken(newToken);
-        print('Token refreshed successfully');
+        ServexUtils.dPrint('Token refreshed successfully');
         return true;
       } else {
-        print(
+        ServexUtils.dPrint(
           'Failed to refresh token: ${response.statusCode} - ${response.data}',
         );
         return false;
       }
     } catch (e) {
-      print('Error refreshing token: $e');
+      ServexUtils.dPrint('Error refreshing token: $e');
       return false;
     }
   }
@@ -130,7 +132,7 @@ class AllServicesController extends GetxController {
   }) async {
     if (userId.value == 0) {
       Get.snackbar('Error', 'User ID not loaded. Please try again.');
-      print('Error: User ID not loaded');
+      ServexUtils.dPrint('Error: User ID not loaded');
       return;
     }
 
@@ -138,13 +140,13 @@ class AllServicesController extends GetxController {
       var token = await localStorage.getToken();
       if (token == null) {
         Get.snackbar('Error', 'Authentication token not found. Please log in.');
-        print('Error: Authentication token not found');
+        ServexUtils.dPrint('Error: Authentication token not found');
         Get.offAllNamed('/login'); // Redirect to login screen
         return;
       }
 
       // Step 1: Create booking
-      print(
+      ServexUtils.dPrint(
         'Creating booking for userId: ${userId.value}, vendorId: $vendorId, categoryId: $categoryId, subCategoryId: $subCategoryId',
       );
       final bookingResponse = await _dio.post(
@@ -163,10 +165,10 @@ class AllServicesController extends GetxController {
       if (bookingResponse.statusCode == 200 ||
           bookingResponse.statusCode == 201) {
         final int bookingId = bookingResponse.data['id'];
-        print('Booking created successfully: ID $bookingId');
+        ServexUtils.dPrint('Booking created successfully: ID $bookingId');
 
         // Step 2: Create Razorpay order
-        print('Creating Razorpay order for amount: $amount');
+        ServexUtils.dPrint('Creating Razorpay order for amount: $amount');
         final orderResponse = await _dio.post(
           '/api/payments/create-order',
           data: {'amount': amount.toInt(), 'currency': 'INR'},
@@ -175,7 +177,7 @@ class AllServicesController extends GetxController {
 
         if (orderResponse.statusCode == 200) {
           final data = orderResponse.data;
-          print(
+          ServexUtils.dPrint(
             'Razorpay order created: order_id=${data['order_id']}, key=${data['key']}',
           );
 
@@ -199,10 +201,12 @@ class AllServicesController extends GetxController {
             'theme': {'color': '#F37254'},
           };
 
-          print('Starting Razorpay payment with options: $options');
+          ServexUtils.dPrint(
+            'Starting Razorpay payment with options: $options',
+          );
           _razorpay.open(options);
         } else {
-          print(
+          ServexUtils.dPrint(
             'Failed to create Razorpay order: ${orderResponse.statusCode} - ${orderResponse.data}',
           );
           Get.snackbar(
@@ -212,7 +216,7 @@ class AllServicesController extends GetxController {
           if (orderResponse.statusCode == 401) {
             // Attempt to refresh token
             if (await refreshToken()) {
-              print('Retrying payment with refreshed token');
+              ServexUtils.dPrint('Retrying payment with refreshed token');
               await startPayment(
                 vendorId: vendorId,
                 categoryId: categoryId,
@@ -234,7 +238,7 @@ class AllServicesController extends GetxController {
           }
         }
       } else {
-        print(
+        ServexUtils.dPrint(
           'Failed to create booking: ${bookingResponse.statusCode} - ${bookingResponse.data}',
         );
         Get.snackbar(
@@ -244,7 +248,7 @@ class AllServicesController extends GetxController {
         if (bookingResponse.statusCode == 401) {
           // Attempt to refresh token
           if (await refreshToken()) {
-            print('Retrying payment with refreshed token');
+            ServexUtils.dPrint('Retrying payment with refreshed token');
             await startPayment(
               vendorId: vendorId,
               categoryId: categoryId,
@@ -258,16 +262,16 @@ class AllServicesController extends GetxController {
         }
       }
     } catch (e) {
-      print('Error in startPayment: $e');
+      ServexUtils.dPrint('Error in startPayment: $e');
       Get.snackbar('Error', 'Payment initiation failed: $e');
       if (e is DioException) {
-        print(
+        ServexUtils.dPrint(
           'DioException details: ${e.response?.data}, status: ${e.response?.statusCode}',
         );
         if (e.response?.statusCode == 401) {
           // Attempt to refresh token
           if (await refreshToken()) {
-            print('Retrying payment with refreshed token');
+            ServexUtils.dPrint('Retrying payment with refreshed token');
             await startPayment(
               vendorId: vendorId,
               categoryId: categoryId,
@@ -286,7 +290,7 @@ class AllServicesController extends GetxController {
   /// Handle Razorpay success
   Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
     if (_pendingBooking != null) {
-      print(
+      ServexUtils.dPrint(
         'Payment success: paymentId=${response.paymentId}, orderId=${response.orderId}, signature=${response.signature}',
       );
       await _createPayment(
@@ -298,7 +302,9 @@ class AllServicesController extends GetxController {
       );
       _pendingBooking = null;
     } else {
-      print('Error: _pendingBooking is null during payment success');
+      ServexUtils.dPrint(
+        'Error: _pendingBooking is null during payment success',
+      );
       Get.snackbar('Error', 'Payment succeeded but booking data is missing');
     }
     Get.snackbar('Success', 'Payment successful!');
@@ -308,7 +314,9 @@ class AllServicesController extends GetxController {
 
   /// Handle Razorpay error
   void _handlePaymentError(PaymentFailureResponse response) {
-    print('Payment error: code=${response.code}, message=${response.message}');
+    ServexUtils.dPrint(
+      'Payment error: code=${response.code}, message=${response.message}',
+    );
     Get.snackbar('Payment Failed', response.message ?? 'Unknown error');
   }
 
@@ -324,12 +332,14 @@ class AllServicesController extends GetxController {
       final token = await localStorage.getToken();
       if (token == null) {
         Get.snackbar('Error', 'Authentication token not found. Please log in.');
-        print('Error: Authentication token not found in _createPayment');
+        ServexUtils.dPrint(
+          'Error: Authentication token not found in _createPayment',
+        );
         Get.offAllNamed('/login'); // Redirect to login screen
         return;
       }
 
-      print(
+      ServexUtils.dPrint(
         'Creating payment for bookingId: $bookingId, paymentId: $paymentId, amount: ${(amount * 100).toInt()}',
       );
       final response = await _dio.post(
@@ -347,9 +357,9 @@ class AllServicesController extends GetxController {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('✅ Payment stored successfully: ${response.data}');
+        ServexUtils.dPrint('✅ Payment stored successfully: ${response.data}');
       } else {
-        print(
+        ServexUtils.dPrint(
           '❌ Failed to store payment: ${response.statusCode} - ${response.data}',
         );
         Get.snackbar(
@@ -358,10 +368,10 @@ class AllServicesController extends GetxController {
         );
       }
     } catch (e) {
-      print('❌ Error creating payment: $e');
+      ServexUtils.dPrint('❌ Error creating payment: $e');
       Get.snackbar('Error', 'Error creating payment: $e');
       if (e is DioException) {
-        print(
+        ServexUtils.dPrint(
           'DioException details: ${e.response?.data}, status: ${e.response?.statusCode}',
         );
         if (e.response?.statusCode == 401) {
@@ -378,22 +388,24 @@ class AllServicesController extends GetxController {
       final token = await localStorage.getToken();
       if (token == null) {
         Get.snackbar('Error', 'Authentication token not found. Please log in.');
-        print('Error: Authentication token not found in fetchPaymentDetails');
+        ServexUtils.dPrint(
+          'Error: Authentication token not found in fetchPaymentDetails',
+        );
         Get.offAllNamed('/login'); // Redirect to login screen
         return false;
       }
 
-      print('Fetching payment details for bookingId: $bookingId');
+      ServexUtils.dPrint('Fetching payment details for bookingId: $bookingId');
       final response = await _dio.get(
         '/api/bookings/$bookingId/payment',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 200) {
-        print('Payment details retrieved: ${response.data}');
+        ServexUtils.dPrint('Payment details retrieved: ${response.data}');
         return true;
       } else {
-        print(
+        ServexUtils.dPrint(
           'Failed to retrieve payment: ${response.statusCode} - ${response.data}',
         );
         Get.snackbar(
@@ -403,7 +415,9 @@ class AllServicesController extends GetxController {
         return false;
       }
     } catch (e) {
-      print('Error fetching payment details for booking $bookingId: $e');
+      ServexUtils.dPrint(
+        'Error fetching payment details for booking $bookingId: $e',
+      );
       Get.snackbar('Error', 'No payment found or error occurred: $e');
       if (e is DioException && e.response?.statusCode == 401) {
         Get.snackbar('Error', 'Session expired. Please log in again.');
@@ -421,7 +435,7 @@ class AllServicesController extends GetxController {
     required String orderId,
     required String signature,
   }) async {
-    print('Retrying payment creation for bookingId: $bookingId');
+    ServexUtils.dPrint('Retrying payment creation for bookingId: $bookingId');
     await _createPayment(
       bookingId: bookingId,
       amount: amount,

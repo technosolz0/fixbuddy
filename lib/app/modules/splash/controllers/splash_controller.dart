@@ -1,35 +1,9 @@
-// import 'package:fixbuddy/app/routes/app_routes.dart';
-// import 'package:fixbuddy/app/utils/local_storage.dart';
-// import 'package:get/get.dart';
-
-// class SplashController extends GetxController {
-//   final LocalStorage _localStorage = LocalStorage();
-
-//   @override
-//   void onReady() {
-//     super.onReady();
-//     _checkUserSession();
-//   }
-
-//   Future<void> _checkUserSession() async {
-//     await Future.delayed(const Duration(seconds: 2)); // for splash delay
-
-//     final token = await _localStorage.getToken();
-
-//     if (token != null && token.isNotEmpty) {
-//       Get.offAllNamed(Routes.mainScreen);
-//     } else {
-//       Get.offAllNamed(Routes.login);
-//     }
-//   }
-// }
-
 import 'package:fixbuddy/app/modules/splash/views/onboard_view.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/utils/local_storage.dart';
 import 'package:fixbuddy/app/utils/servex_utils.dart';
-// import 'package:fixbuddy/app/views/onboard/onboard_view.dart'; // Create this util if needed
 import 'package:get/get.dart';
+// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashController extends GetxController {

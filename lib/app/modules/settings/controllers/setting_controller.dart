@@ -8,6 +8,7 @@ import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:fixbuddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+// ignore: depend_on_referenced_packages
 import 'package:in_app_review/in_app_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

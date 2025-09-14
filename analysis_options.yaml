@@ -11,6 +11,7 @@ analyzer:
   errors:
     unnecessary_overrides: ignore
     deprecated_member_use: ignore
+    duplicate_ignore: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

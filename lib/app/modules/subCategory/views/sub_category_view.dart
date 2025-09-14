@@ -4,7 +4,6 @@ import 'package:fixbuddy/app/modules/subCategory/controllers/sub_category_contro
 import 'package:fixbuddy/app/routes/app_routes.dart';
 import 'package:fixbuddy/app/utils/extensions.dart';
 import 'package:fixbuddy/app/utils/shimmerLoader.dart';
-import 'package:fixbuddy/app/widgets/customListTile.dart';
 import 'package:fixbuddy/app/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,14 +19,11 @@ class _SubCategoryViewState extends State<SubCategoryView> {
   final SubcategoryController controller = Get.put(SubcategoryController());
 
   @override
-  @override
   void initState() {
     super.initState();
-
-    final args = Get.arguments as Map<String, dynamic>?; // safely cast
-    final categoryId = args?['categoryId'] as int?;
-
-    if (categoryId != null) {
+    final args = Get.arguments as List?;
+    if (args != null && args.isNotEmpty) {
+      final categoryId = args[0] as int;
       controller.fetchByCategory(categoryId);
     } else {
       controller.fetchSubcategories();
@@ -44,7 +40,7 @@ class _SubCategoryViewState extends State<SubCategoryView> {
         children: [
           // Background Gradient
           Container(
-            height: size.height * 0.25,
+            height: size.height * 0.2,
             decoration: BoxDecoration(
               gradient: context.isLightTheme
                   ? AppColors.lightThemeGradient
@@ -52,119 +48,76 @@ class _SubCategoryViewState extends State<SubCategoryView> {
             ),
           ),
 
-          // Foreground content
-          Obx(() {
-            if (controller.isLoading.value) {
-              return buildShimmerLoader();
-            }
-
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search Category',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: AppColors.whiteColor,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 16,
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  // Search Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search Sub-Category',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: context.isLightTheme
+                            ? AppColors.whiteColor.withOpacity(0.9)
+                            : AppColors.blackColor.withOpacity(0.9),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
+                      onChanged: controller.searchSubcategory,
                     ),
-                    onChanged: controller.searchSubcategory,
                   ),
-                ),
-                // 📋 Subcategory List
-                Expanded(
-                  child: Obx(() {
-                    final filtered = controller.filteredSubcategories;
 
-                    if (filtered.isEmpty) {
-                      return const Center(
-                        child: Text("No Sub Categories found."),
-                      );
-                    }
+                  // Subcategory Grid
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return buildShimmerLoader();
+                      }
 
-                    return ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final sub = filtered[index];
-                        final status = sub.status.toLowerCase();
+                      final filtered = controller.filteredSubcategories;
+                      if (filtered.isEmpty) {
+                        return const Center(
+                          child: Text("No Sub Categories found."),
+                        );
+                      }
 
-                        Color statusColor;
-                        switch (status) {
-                          case 'active':
-                            statusColor = AppColors.successColor;
-                            break;
-                          case 'inactive':
-                            statusColor = AppColors.errorColor;
-                            break;
-                          default:
-                            statusColor = Colors.grey;
-                        }
-
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          decoration: BoxDecoration(
-                            color: AppColors.whiteColor,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 6,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: CustomListTile(
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(26),
-                              child: sub.image != null
-                                  ? Image.network(
-                                      '${ApiConstants.baseUrl}/${sub.image}',
-                                      width: 52,
-                                      height: 52,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) =>
-                                          const Icon(Icons.broken_image),
-                                    )
-                                  : const Icon(Icons.image, size: 48),
+                      return GridView.builder(
+                        itemCount: filtered.length,
+                        padding: const EdgeInsets.only(top: 8),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.85,
                             ),
-                            title: Text(
-                              sub.name.toCapitalized(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.blackColor,
-                              ),
-                            ),
-                            trailing: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                sub.status.toCapitalized(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: statusColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                        itemBuilder: (context, index) {
+                          final sub = filtered[index];
+                          final status = sub.status.toLowerCase();
+
+                          Color statusColor;
+                          switch (status) {
+                            case 'active':
+                              statusColor = AppColors.successColor;
+                              break;
+                            case 'inactive':
+                              statusColor = AppColors.errorColor;
+                              break;
+                            default:
+                              statusColor = Colors.grey;
+                          }
+
+                          return InkWell(
                             onTap: () {
                               Get.toNamed(
                                 Routes.allServices,
@@ -174,15 +127,78 @@ class _SubCategoryViewState extends State<SubCategoryView> {
                                 },
                               );
                             },
-                          ),
-                        );
-                      },
-                    );
-                  }),
-                ),
-              ],
-            );
-          }),
+                            child: Card(
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: sub.image != null
+                                            ? Image.network(
+                                                '${ApiConstants.baseUrl}${sub.image}',
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, _, _) =>
+                                                    const Icon(
+                                                      Icons.broken_image,
+                                                      size: 60,
+                                                    ),
+                                              )
+                                            : const Icon(Icons.image, size: 60),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      sub.name.toCapitalized(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.blackColor,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        sub.status.toCapitalized(),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: statusColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

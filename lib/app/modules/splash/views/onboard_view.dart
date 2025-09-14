@@ -163,7 +163,7 @@ class OnboardView extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

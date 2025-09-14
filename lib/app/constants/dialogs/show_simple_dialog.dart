@@ -5,7 +5,7 @@ import 'package:fixbuddy/app/utils/extensions.dart';
 import 'package:fixbuddy/app/utils/theme.dart';
 import 'package:fixbuddy/app/widgets/custom_button.dart';
 
-showSimpleDialog(
+Future showSimpleDialog(
   BuildContext context,
   String title,
   String btnText,

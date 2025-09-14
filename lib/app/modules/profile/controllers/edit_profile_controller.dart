@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:health_parliament/app/data/models/local_profile_model.dart';
@@ -8,7 +7,6 @@ import 'package:get/get.dart';
 // import 'package:health_parliament/app/modules/profile/services/profile_services.dart';
 // import 'package:health_parliament/app/utils/local_storage.dart';
 // import 'package:health_parliament/app/utils/ServexUtils.dart';
-import 'package:intl/intl.dart';
 
 class EditProfileController extends GetxController {
   // LocalProfileModel userData = Get.arguments as LocalProfileModel;
@@ -19,19 +17,11 @@ class EditProfileController extends GetxController {
     'Mr.',
     'Mrs.',
     'Ms.',
-    'Prof.'
+    'Prof.',
   ];
 
-  final List<String> genderDropdownItems = [
-    'Male',
-    'Female',
-    'Other',
-  ];
-  final List<String> visibilityOptions = [
-    'Everyone',
-    'My followers',
-    'No one',
-  ];
+  final List<String> genderDropdownItems = ['Male', 'Female', 'Other'];
+  final List<String> visibilityOptions = ['Everyone', 'My followers', 'No one'];
 
   final List<String> currentStatusOptions = [
     'Student',

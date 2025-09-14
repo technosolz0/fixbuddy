@@ -389,7 +389,7 @@ class HomeController extends GetxController {
                         ? Image.network(
                             '${ApiConstants.baseUrl}${category.image}',
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.category,
                               size: 40,
                               color: Colors.grey,

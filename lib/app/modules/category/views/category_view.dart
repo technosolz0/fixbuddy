@@ -5,7 +5,6 @@ import 'package:fixbuddy/app/utils/extensions.dart';
 import 'package:fixbuddy/app/utils/shimmerLoader.dart';
 import 'package:flutter/material.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
-import 'package:fixbuddy/app/widgets/customListTile.dart';
 import 'package:fixbuddy/app/widgets/custom_app_bar.dart';
 import 'package:get/get.dart';
 
@@ -24,7 +23,7 @@ class CategoryView extends StatelessWidget {
         children: [
           // Background Gradient
           Container(
-            height: size.height * 0.25,
+            height: size.height * 0.2,
             decoration: BoxDecoration(
               gradient: context.isLightTheme
                   ? AppColors.lightThemeGradient
@@ -32,122 +31,152 @@ class CategoryView extends StatelessWidget {
             ),
           ),
 
-          // Foreground content
-          Obx(() {
-            if (controller.isLoading.value) {
-              return buildShimmerLoader();
-            }
-
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search Category',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: AppColors.whiteColor,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onChanged: controller.searchCategory,
-                  ),
-                ),
-
-                Expanded(
-                  child: controller.filteredCategories.isEmpty
-                      ? const Center(child: Text("No categories found."))
-                      : ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          itemCount: controller.filteredCategories.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final category =
-                                controller.filteredCategories[index];
-                            final status = category.status.toLowerCase();
-
-                            Color statusColor;
-                            switch (status) {
-                              case 'active':
-                                statusColor = AppColors.successColor;
-                                break;
-                              case 'inactive':
-                                statusColor = AppColors.errorColor;
-                                break;
-                              default:
-                                statusColor = Colors.grey;
-                            }
-
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: CustomListTile(
-                                leading: CircleAvatar(
-                                  radius: 26,
-                                  backgroundImage: NetworkImage(
-                                    '${ApiConstants.baseUrl}${category.image}',
-                                  ),
-                                ),
-                                title: Text(
-                                  category.name.toCapitalized(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.blackColor,
-                                  ),
-                                ),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    category.status.toCapitalized(),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: statusColor,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-
-                                onTap: () {
-                                  Get.toNamed(
-                                    Routes.subcategory,
-                                    arguments: [category.id],
-                                  );
-                                },
-                              ),
-                            );
-                          },
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  // Search Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search Category',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: context.isLightTheme
+                            ? AppColors.whiteColor.withOpacity(0.9)
+                            : AppColors.blackColor.withOpacity(0.9),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 16,
                         ),
-                ),
-              ],
-            );
-          }),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onChanged: controller.searchCategory,
+                    ),
+                  ),
+
+                  // Category Grid
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return buildShimmerLoader();
+                      }
+
+                      if (controller.filteredCategories.isEmpty) {
+                        return const Center(
+                          child: Text("No categories found."),
+                        );
+                      }
+
+                      return GridView.builder(
+                        itemCount: controller.filteredCategories.length,
+                        padding: const EdgeInsets.only(top: 8),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.85,
+                            ),
+                        itemBuilder: (context, index) {
+                          final category = controller.filteredCategories[index];
+                          final status = category.status.toLowerCase();
+
+                          Color statusColor;
+                          switch (status) {
+                            case 'active':
+                              statusColor = AppColors.successColor;
+                              break;
+                            case 'inactive':
+                              statusColor = AppColors.errorColor;
+                              break;
+                            default:
+                              statusColor = Colors.grey;
+                          }
+
+                          return InkWell(
+                            onTap: () {
+                              Get.toNamed(
+                                Routes.subcategory,
+                                arguments: [category.id],
+                              );
+                            },
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                // borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.network(
+                                          '${ApiConstants.baseUrl}${category.image}',
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(
+                                                    Icons.broken_image,
+                                                    size: 60,
+                                                  ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      category.name.toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.blackColor,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        category.status.toCapitalized(),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: statusColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

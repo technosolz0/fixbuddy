@@ -4,6 +4,7 @@ import 'package:fixbuddy/app/data/models/user_cached_model.dart';
 import 'package:fixbuddy/app/modules/address/models/address_model.dart';
 import 'package:fixbuddy/app/modules/address/services/address_service.dart';
 import 'package:fixbuddy/app/utils/local_storage.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
@@ -56,13 +57,13 @@ class ProfileController extends GetxController {
           address.value =
               "${defaultAddress.address}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.country} - ${defaultAddress.pinCode}";
         }
-        print("Default address: ${address.value}");
+        ServexUtils.dPrint("Default address: ${address.value}");
       } else {
         Get.snackbar("Error", "Failed to load addresses: ${result.statusCode}");
       }
     } catch (e) {
       Get.snackbar("Error", "Failed to load addresses");
-      print("fetchAddresses error: $e");
+      ServexUtils.dPrint("fetchAddresses error: $e");
     }
   }
 

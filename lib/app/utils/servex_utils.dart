@@ -1,6 +1,7 @@
+// ignore_for_file: strict_top_level_inference
+
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:fixbuddy/app/constants/api_constants.dart';
 import 'package:fixbuddy/app/modules/splash/views/mandatory_update_denied.dart';
@@ -74,14 +75,15 @@ class ServexUtils {
     );
   }
 
-  static dPrint(var data) {
+  // ignore: strict_top_level_inference
+  static Future<void> dPrint(var data) async {
     if (kDebugMode) {
       print(data);
     }
   }
 
   /// To log on console only for debug mode
-  static dLog(var data) {
+  static void dLog(var data) {
     if (kDebugMode) {
       log(data.toString());
     }
@@ -183,7 +185,7 @@ class ServexUtils {
     Share.share(text);
   }
 
-  static showOverlayLoadingDialog() {
+  static void showOverlayLoadingDialog() {
     showDialog(
       context: Get.overlayContext!,
       barrierDismissible: false,
@@ -212,7 +214,7 @@ class ServexUtils {
   }
 
   /// To hide a currently displayed overlay loading dialog
-  static hideOverlayLoadingDialog() {
+  static void hideOverlayLoadingDialog() {
     Navigator.of(Get.overlayContext!).pop();
   }
 

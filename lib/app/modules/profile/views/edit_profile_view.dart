@@ -3,7 +3,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbuddy/app/constants/address_constants.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
-import 'package:fixbuddy/app/constants/app_constants.dart';
 import 'package:fixbuddy/app/modules/profile/controllers/edit_profile_controller.dart';
 import 'package:fixbuddy/app/widgets/custom_button.dart';
 import 'package:fixbuddy/app/widgets/custom_dropdown.dart';

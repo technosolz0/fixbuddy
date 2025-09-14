@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../utils/theme.dart';
 
-feedbackBottomsheet(BuildContext context) {
+void feedbackBottomsheet(BuildContext context) {
   SettingController controller = Get.find<SettingController>();
   controller.selectedStars.value = 0;
   showModalBottomSheet(

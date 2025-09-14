@@ -25,7 +25,7 @@
 //           duration: const Duration(milliseconds: 300),
 //           child: FloatingActionButton(
 //             onPressed: () {
-//               print('Edit Profile tapped');
+//               ServexUtils.dPrint('Edit Profile tapped');
 //             },
 //             backgroundColor: Colors.transparent,
 //             elevation: 0,
@@ -337,7 +337,7 @@
 //           color: AppColors.primaryColor,
 //         ),
 //         onTap: () {
-//           print('$title tapped: $value');
+//           ServexUtils.dPrint('$title tapped: $value');
 //         },
 //         backgroundColor: Colors.transparent,
 //         borderRadius: 12.r,
@@ -379,6 +379,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbuddy/app/constants/app_color.dart';
 import 'package:fixbuddy/app/modules/profile/controllers/profile_controller.dart';
 import 'package:fixbuddy/app/routes/app_routes.dart';
+import 'package:fixbuddy/app/utils/servex_utils.dart';
 import 'package:fixbuddy/app/widgets/customListTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -401,7 +402,7 @@ class ProfileView extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           child: FloatingActionButton(
             onPressed: () {
-              print('Edit Profile tapped');
+              ServexUtils.dPrint('Edit Profile tapped');
             },
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -429,7 +430,7 @@ class ProfileView extends StatelessWidget {
           child: Column(
             children: [
               // Fixed header
-              Container(
+              SizedBox(
                 height: size.height * 0.3,
                 child: Stack(
                   children: [
@@ -484,7 +485,7 @@ class ProfileView extends StatelessWidget {
                                     width: 100.w,
                                     alignment: Alignment.center,
                                     child: Text(
-                                      '${controller.username.value.isNotEmpty ? controller.username.value[0] : 'U'}',
+                                      controller.username.value.isNotEmpty ? controller.username.value[0] : 'U',
                                       style: TextStyle(
                                         color: AppColors.primaryColor,
                                         fontSize: 40.sp,
